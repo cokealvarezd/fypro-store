@@ -1,69 +1,71 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { getProductos } from '@/lib/firestore'
+import ProductCard from '@/components/ProductCard'
 
-export default function Home() {
+export default async function Home() {
+  const productos = await getProductos()
+  const destacados = productos.slice(0, 8)
+
+  const categorias = [
+    { nombre: 'Geles y energía', emoji: '⚡' },
+    { nombre: 'Proteína', emoji: '💪' },
+    { nombre: 'Electrolitos', emoji: '💧' },
+    { nombre: 'Suplementos', emoji: '🌿' },
+  ]
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-teal-900 via-teal-800 to-teal-700 text-white">
+        <div className="max-w-6xl mx-auto px-4 py-20 md:py-28 text-center">
+          <p className="text-teal-300 font-semibold text-sm uppercase tracking-widest mb-4">Nutrición deportiva · Pucón, Chile</p>
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+            Rinde al máximo.<br className="hidden md:block" />
+            <span className="text-teal-300">Nutre como un pro.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-teal-100 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+            Geles, proteínas, electrolitos y suplementos seleccionados para atletas que van en serio.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/productos"
+            className="inline-block bg-white text-teal-800 font-bold text-base px-8 py-4 rounded-full hover:bg-teal-50 transition-colors shadow-lg"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Ver todos los productos
+          </Link>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* Categorías */}
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Explorar por categoría</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {categorias.map(cat => (
+            <Link
+              key={cat.nombre}
+              href={`/productos?categoria=${encodeURIComponent(cat.nombre)}`}
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all p-5 flex flex-col items-center gap-2 text-center group"
+            >
+              <span className="text-3xl">{cat.emoji}</span>
+              <span className="text-sm font-semibold text-gray-700 group-hover:text-teal-700 transition-colors">{cat.nombre}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Productos destacados */}
+      {destacados.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 pb-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800">Productos</h2>
+            <Link href="/productos" className="text-sm font-semibold text-teal-700 hover:text-teal-900">
+              Ver todos →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {destacados.map(p => <ProductCard key={p.id} p={p} />)}
+          </div>
+        </section>
+      )}
+    </>
+  )
 }
