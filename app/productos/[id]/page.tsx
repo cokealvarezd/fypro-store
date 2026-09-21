@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { getProducto, getProductos } from '@/lib/firestore'
 import { formatPrecio } from '@/lib/utils'
 import AgregarAlCarrito from '@/components/AgregarAlCarrito'
+import ImageCarrusel from '@/components/ImageCarrusel'
 import type { Metadata } from 'next'
+
+export const revalidate = 60
 
 interface Props {
   params: Promise<{ id: string }>
@@ -32,6 +34,7 @@ export default async function ProductoPage({ params }: Props) {
   if (!p || !p.activo || !p.publicado) notFound()
 
   const precio = p.precioVentaIVA ?? p.precioVenta
+  const fotos = p.fotos?.length ? p.fotos : p.foto ? [p.foto] : []
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -45,25 +48,8 @@ export default async function ProductoPage({ params }: Props) {
       </nav>
 
       <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
-        {/* Imagen */}
-        <div className="relative bg-gray-50 rounded-3xl overflow-hidden aspect-square">
-          {p.foto ? (
-            <Image
-              src={p.foto}
-              alt={`${p.marca} ${p.nombre}`}
-              fill
-              sizes="(max-width:768px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <svg className="w-24 h-24 text-gray-200" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-            </div>
-          )}
-        </div>
+        {/* Carrusel de imágenes */}
+        <ImageCarrusel fotos={fotos} nombre={`${p.marca} ${p.nombre}`} />
 
         {/* Info */}
         <div className="flex flex-col gap-4">

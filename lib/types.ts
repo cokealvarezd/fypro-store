@@ -5,6 +5,7 @@ export interface Producto {
   categoria: string
   descripcion?: string | null
   foto?: string | null
+  fotos?: string[] | null
   precioCosto?: number | null
   precioVenta?: number | null
   precioVentaIVA?: number | null
