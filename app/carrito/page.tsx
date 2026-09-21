@@ -4,9 +4,18 @@ import { useCart } from '@/context/CartContext'
 import { formatPrecio } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function CarritoPage() {
   const { items, total, actualizar, quitar } = useCart()
+  const [stockMap, setStockMap] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    fetch('/api/stock')
+      .then(r => r.json())
+      .then(setStockMap)
+      .catch(() => {})
+  }, [])
 
   if (items.length === 0) {
     return (
@@ -28,37 +37,48 @@ export default function CarritoPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Items */}
         <div className="lg:col-span-2 space-y-3">
-          {items.map(item => (
-            <div key={item.productoId} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex gap-4 items-center">
-              <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-50 shrink-0">
-                {item.foto ? (
-                  <Image src={item.foto} alt={item.nombre} fill className="object-cover" sizes="64px" />
-                ) : (
-                  <div className="w-full h-full bg-gray-100" />
-                )}
-              </div>
+          {items.map(item => {
+            const stockDisponible = stockMap[item.productoId]
+            const alMaximo = stockDisponible !== undefined && item.cantidad >= stockDisponible
 
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-teal-600">{item.marca}</p>
-                <p className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</p>
-                <p className="text-sm text-gray-500">{formatPrecio(item.precioUnitario)} c/u</p>
-              </div>
+            return (
+              <div key={item.productoId} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex gap-4 items-center">
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-50 shrink-0">
+                  {item.foto ? (
+                    <Image src={item.foto} alt={item.nombre} fill className="object-cover" sizes="64px" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100" />
+                  )}
+                </div>
 
-              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden shrink-0">
-                <button onClick={() => actualizar(item.productoId, item.cantidad - 1)}
-                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-sm">−</button>
-                <span className="w-8 text-center text-sm font-semibold">{item.cantidad}</span>
-                <button onClick={() => actualizar(item.productoId, item.cantidad + 1)}
-                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-sm">+</button>
-              </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-teal-600">{item.marca}</p>
+                  <p className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</p>
+                  <p className="text-sm text-gray-500">{formatPrecio(item.precioUnitario)} c/u</p>
+                  {alMaximo && (
+                    <p className="text-xs text-amber-600 mt-0.5">Máximo disponible: {stockDisponible}</p>
+                  )}
+                </div>
 
-              <div className="text-right shrink-0">
-                <p className="font-bold text-gray-900 text-sm">{formatPrecio(item.precioUnitario * item.cantidad)}</p>
-                <button onClick={() => quitar(item.productoId)}
-                  className="text-xs text-red-400 hover:text-red-600 mt-1 transition-colors">Quitar</button>
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden shrink-0">
+                  <button onClick={() => actualizar(item.productoId, item.cantidad - 1)}
+                    className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-sm">−</button>
+                  <span className="w-8 text-center text-sm font-semibold">{item.cantidad}</span>
+                  <button
+                    onClick={() => actualizar(item.productoId, item.cantidad + 1)}
+                    disabled={alMaximo}
+                    className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 font-bold text-sm disabled:opacity-30"
+                  >+</button>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-gray-900 text-sm">{formatPrecio(item.precioUnitario * item.cantidad)}</p>
+                  <button onClick={() => quitar(item.productoId)}
+                    className="text-xs text-red-400 hover:text-red-600 mt-1 transition-colors">Quitar</button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Resumen */}

@@ -54,3 +54,32 @@ export async function getProducto(id: string): Promise<Producto | null> {
     return null
   }
 }
+
+interface Movimiento {
+  tipo: 'COMPRA' | 'VENTA' | 'TRASLADO'
+  items: { productoId: string; cantidad: number }[]
+}
+
+export async function getStockTodos(): Promise<Record<string, number>> {
+  try {
+    const res = await fetch(`${BASE}/movimientos?pageSize=2000`, {
+      next: { revalidate: 60 },
+    })
+    if (!res.ok) return {}
+    const data = await res.json()
+    if (!data.documents) return {}
+
+    const stock: Record<string, number> = {}
+    for (const doc of data.documents as { fields: Record<string, FSValue> }[]) {
+      const mov = parseFields(doc.fields) as unknown as Movimiento
+      if (mov.tipo === 'TRASLADO') continue
+      const delta = mov.tipo === 'COMPRA' ? 1 : -1
+      for (const item of mov.items ?? []) {
+        stock[item.productoId] = (stock[item.productoId] ?? 0) + delta * item.cantidad
+      }
+    }
+    return stock
+  } catch {
+    return {}
+  }
+}
