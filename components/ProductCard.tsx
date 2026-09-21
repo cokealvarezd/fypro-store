@@ -26,11 +26,6 @@ export default function ProductCard({ p }: { p: Producto }) {
             </svg>
           </div>
         )}
-        {p.categoria && (
-          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-teal-700 text-xs font-semibold px-2 py-1 rounded-full">
-            {p.categoria}
-          </span>
-        )}
       </div>
 
       <div className="p-4 flex flex-col gap-1 flex-1">
