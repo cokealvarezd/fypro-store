@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getProducto, getProductos, getStockTodos } from '@/lib/firestore'
+import { getProducto, getProductos } from '@/lib/firestore'
 import { formatPrecio } from '@/lib/utils'
 import AgregarAlCarrito from '@/components/AgregarAlCarrito'
 import ImageCarrusel from '@/components/ImageCarrusel'
@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductoPage({ params }: Props) {
   const { id } = await params
-  const [p, stockMap] = await Promise.all([getProducto(id), getStockTodos()])
+  const p = await getProducto(id)
   if (!p || !p.activo || !p.publicado) notFound()
 
   const precio = p.precioVentaIVA ?? p.precioVenta
   const fotos = p.fotos?.length ? p.fotos : p.foto ? [p.foto] : []
-  const stock = stockMap[id] ?? 0
+  const stock = p.stock ?? 0
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
