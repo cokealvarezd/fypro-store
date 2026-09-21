@@ -47,7 +47,19 @@ export default function AgregarAlCarrito({ producto, stockDisponible }: Props) {
           >
             −
           </button>
-          <span className="w-10 text-center font-semibold text-gray-800">{sinStock ? 0 : cantidad}</span>
+          <input
+            type="number"
+            min={1}
+            max={maxPedible === Infinity ? undefined : maxPedible}
+            value={sinStock ? 0 : cantidad}
+            disabled={sinStock}
+            onChange={e => {
+              const v = parseInt(e.target.value)
+              if (isNaN(v) || v < 1) { setCantidad(1); return }
+              setCantidad(Math.min(v, maxPedible === Infinity ? v : maxPedible))
+            }}
+            className="w-14 text-center font-semibold text-gray-800 border-x border-gray-200 h-10 focus:outline-none focus:bg-gray-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:opacity-30"
+          />
           <button
             onClick={() => setCantidad(c => Math.min(maxPedible, c + 1))}
             disabled={sinStock || cantidad >= maxPedible}
