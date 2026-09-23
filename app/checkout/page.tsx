@@ -50,7 +50,7 @@ export default function CheckoutPage() {
 
     setEnviando(true)
     try {
-      const res = await fetch('/api/orden', {
+      const res = await fetch('/api/mp/preference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,11 +71,11 @@ export default function CheckoutPage() {
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Error al confirmar pedido')
+      if (!res.ok) throw new Error(data.error ?? 'Error al crear preferencia de pago')
 
       pedidoEnviado.current = true
       vaciar()
-      router.push(`/pedido-confirmado?id=${data.id}`)
+      window.location.href = data.checkout_url
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado')
       setEnviando(false)
@@ -226,7 +226,7 @@ export default function CheckoutPage() {
 
               <button type="submit" disabled={enviando}
                 className="w-full py-3.5 rounded-xl font-semibold text-base bg-teal-700 text-white hover:bg-teal-800 transition-colors active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
-                {enviando ? 'Confirmando…' : 'Confirmar pedido'}
+                {enviando ? 'Redirigiendo a Mercado Pago…' : 'Pagar con Mercado Pago'}
               </button>
 
               <Link href="/carrito" className="block text-center text-sm text-gray-400 hover:text-gray-600 transition-colors">
