@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Crear preferencia en Mercado Pago
+  const isPublicUrl = baseUrl.startsWith('https://')
+
   const preference = {
     items: items.map(i => ({
       id: i.productoId,
@@ -96,7 +98,7 @@ export async function POST(req: NextRequest) {
       failure: `${baseUrl}/checkout?mp_error=1`,
     },
     auto_return: 'approved',
-    notification_url: `${baseUrl}/api/mp/webhook`,
+    ...(isPublicUrl && { notification_url: `${baseUrl}/api/mp/webhook` }),
     external_reference: ordenId,
     statement_descriptor: 'FYPRO',
   }
@@ -109,6 +111,7 @@ export async function POST(req: NextRequest) {
 
   if (!mpRes.ok) {
     const err = await mpRes.json()
+    console.error('[mp/preference] MP error:', JSON.stringify(err))
     return NextResponse.json({ error: 'Error al crear preferencia MP', detail: err }, { status: 500 })
   }
 
