@@ -18,7 +18,7 @@ const labelCls = 'block text-sm font-medium text-gray-700 mb-1'
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, total, vaciar } = useCart()
+  const { items, total, vaciar, listo } = useCart()
 
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
@@ -32,9 +32,10 @@ export default function CheckoutPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (items.length === 0) router.replace('/productos')
-  }, [items, router])
+    if (listo && items.length === 0) router.replace('/productos')
+  }, [items, router, listo])
 
+  if (!listo) return null
   if (items.length === 0) return null
 
   const handleSubmit = async (e: React.FormEvent) => {

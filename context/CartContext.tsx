@@ -7,6 +7,7 @@ interface CartCtx {
   items: ItemCarrito[]
   total: number
   count: number
+  listo: boolean
   agregar: (item: ItemCarrito) => void
   actualizar: (productoId: string, cantidad: number) => void
   quitar: (productoId: string) => void
@@ -19,12 +20,14 @@ const KEY = 'fypro_cart'
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ItemCarrito[]>([])
+  const [listo, setListo] = useState(false)
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY)
       if (raw) setItems(JSON.parse(raw))
     } catch {}
+    setListo(true)
   }, [])
 
   const persist = (next: ItemCarrito[]) => {
@@ -61,7 +64,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const count = items.reduce((s, i) => s + i.cantidad, 0)
 
   return (
-    <CartContext.Provider value={{ items, total, count, agregar, actualizar, quitar, vaciar }}>
+    <CartContext.Provider value={{ items, total, count, listo, agregar, actualizar, quitar, vaciar }}>
       {children}
     </CartContext.Provider>
   )
