@@ -38,7 +38,7 @@ function generarId() {
 export async function POST(req: NextRequest) {
   const apiKey = process.env.FIREBASE_API_KEY
   const mpToken = process.env.MP_ACCESS_TOKEN
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3001'
+  const baseUrl = process.env.BASE_URL ?? 'http://localhost:3001'
 
   if (!apiKey || !mpToken) {
     return NextResponse.json({ error: 'Config incompleta: falta MP_ACCESS_TOKEN' }, { status: 500 })
