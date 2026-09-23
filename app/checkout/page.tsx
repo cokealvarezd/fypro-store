@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -30,9 +30,10 @@ export default function CheckoutPage() {
   const [tienda, setTienda] = useState<'PRINCIPAL' | 'TINYSHOP'>('PRINCIPAL')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
+  const pedidoEnviado = useRef(false)
 
   useEffect(() => {
-    if (listo && items.length === 0) router.replace('/productos')
+    if (listo && items.length === 0 && !pedidoEnviado.current) router.replace('/productos')
   }, [items, router, listo])
 
   if (!listo) return null
@@ -72,6 +73,7 @@ export default function CheckoutPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Error al confirmar pedido')
 
+      pedidoEnviado.current = true
       vaciar()
       router.push(`/pedido-confirmado?id=${data.id}`)
     } catch (err) {
