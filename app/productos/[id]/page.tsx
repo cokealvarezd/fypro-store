@@ -66,7 +66,10 @@ export default async function ProductoPage({ params }: Props) {
           )}
 
           {p.descripcion && (
-            <p className="text-gray-600 text-sm leading-relaxed">{p.descripcion}</p>
+            <div
+              className="product-desc"
+              dangerouslySetInnerHTML={{ __html: p.descripcion }}
+            />
           )}
 
           <div className="border-t border-gray-100 pt-4">
