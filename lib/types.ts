@@ -27,7 +27,7 @@ export interface Orden {
   id: string
   items: { productoId: string; cantidad: number; precioUnitario: number }[]
   contacto: { nombre: string; email: string; telefono: string }
-  despacho: { direccion: string; comuna: string; region: string; tipo: 'despacho' | 'retiro' }
+  despacho: { tipo: 'despacho' | 'retiro'; direccion: string; comuna: string; region: string; tienda?: string }
   subtotal: number
   total: number
   estado: 'pendiente' | 'pagada' | 'rechazada'
