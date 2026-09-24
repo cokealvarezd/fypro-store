@@ -12,6 +12,46 @@ const ESTADO_MAP: Record<string, string> = {
   in_process: 'pendiente',
 }
 
+type FSValue =
+  | { stringValue: string }
+  | { integerValue: string }
+  | { doubleValue: number }
+  | { booleanValue: boolean }
+  | { nullValue: null }
+  | { mapValue: { fields: Record<string, FSValue> } }
+  | { arrayValue: { values?: FSValue[] } }
+
+function toFS(v: unknown): FSValue {
+  if (v === null || v === undefined) return { nullValue: null }
+  if (typeof v === 'boolean') return { booleanValue: v }
+  if (typeof v === 'number') return { integerValue: String(Math.round(v)) }
+  if (typeof v === 'string') return { stringValue: v }
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(toFS) } }
+  if (typeof v === 'object') {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(v as Record<string, unknown>).map(([k, val]) => [k, toFS(val)])
+        ),
+      },
+    }
+  }
+  return { nullValue: null }
+}
+
+function parseFS(v: FSValue): unknown {
+  if ('stringValue' in v) return v.stringValue
+  if ('integerValue' in v) return parseInt(v.integerValue)
+  if ('doubleValue' in v) return v.doubleValue
+  if ('booleanValue' in v) return v.booleanValue
+  if ('nullValue' in v) return null
+  if ('mapValue' in v) return Object.fromEntries(
+    Object.entries(v.mapValue.fields).map(([k, val]) => [k, parseFS(val)])
+  )
+  if ('arrayValue' in v) return (v.arrayValue.values ?? []).map(parseFS)
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const apiKey = process.env.FIREBASE_API_KEY
   const mpToken = process.env.MP_ACCESS_TOKEN
@@ -43,7 +83,6 @@ export async function POST(req: NextRequest) {
   const estado = ESTADO_MAP[mpStatus] ?? 'pendiente'
 
   // Actualizar orden en Firestore
-  // Requiere regla Firestore: allow update: if request.auth != null || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado','mpPagoId','mpStatus'])
   const updateUrl = `${BASE}/ordenes/${ordenId}?${[
     'updateMask.fieldPaths=estado',
     'updateMask.fieldPaths=mpPagoId',
@@ -61,6 +100,44 @@ export async function POST(req: NextRequest) {
       },
     }),
   })
+
+  // Generar movimiento VENTA al confirmarse el pago
+  if (estado === 'pagada') {
+    const orderRes = await fetch(`${BASE}/ordenes/${ordenId}?key=${apiKey}`)
+    if (orderRes.ok) {
+      const orderDoc = await orderRes.json()
+      const rawItems = orderDoc.fields?.items as FSValue | undefined
+
+      if (rawItems) {
+        const parsedItems = parseFS(rawItems) as Array<{ productoId: string; cantidad: number }>
+
+        const movId = `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+        const fecha = new Date().toISOString().split('T')[0]
+
+        const movimiento = {
+          id: movId,
+          tipo: 'VENTA',
+          ubicacion: 'PRINCIPAL',
+          fecha,
+          comentario: `Venta online #${ordenId}`,
+          items: parsedItems.map(item => ({
+            productoId: item.productoId,
+            cantidad: item.cantidad,
+          })),
+        }
+
+        await fetch(`${BASE}/movimientos?documentId=${movId}&key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: Object.fromEntries(
+              Object.entries(movimiento).map(([k, v]) => [k, toFS(v)])
+            ),
+          }),
+        })
+      }
+    }
+  }
 
   return NextResponse.json({ ok: true })
 }
