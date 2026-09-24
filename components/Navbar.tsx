@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useCart } from '@/context/CartContext'
 import { usePathname } from 'next/navigation'
 
@@ -11,8 +12,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="text-xl font-bold tracking-tight text-teal-700 shrink-0">
-          FYPRO
+        <Link href="/" className="shrink-0">
+          <Image src="/logo.webp" alt="FYPRO" width={80} height={40} className="h-10 w-auto object-contain" priority />
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
