@@ -112,7 +112,8 @@ export async function POST(req: NextRequest) {
   if (!mpRes.ok) {
     const err = await mpRes.json()
     console.error('[mp/preference] MP error:', JSON.stringify(err))
-    return NextResponse.json({ error: 'Error al crear preferencia MP', detail: err }, { status: 500 })
+    const mpMsg = err?.message ?? err?.error ?? JSON.stringify(err)
+    return NextResponse.json({ error: `Error MP: ${mpMsg}`, detail: err }, { status: 500 })
   }
 
   const mpData = await mpRes.json()
