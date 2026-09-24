@@ -27,7 +27,7 @@ export default function CheckoutPage() {
   const [direccion, setDireccion] = useState('')
   const [comuna, setComuna] = useState('')
   const [region, setRegion] = useState('')
-  const [tienda, setTienda] = useState<'PRINCIPAL' | 'TINYSHOP'>('PRINCIPAL')
+  const [tienda] = useState<'TINYSHOP'>('TINYSHOP')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
   const pedidoEnviado = useRef(false)
@@ -161,20 +161,15 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <label className={labelCls}>Tienda de retiro</label>
-                  {[
-                    { id: 'PRINCIPAL', label: 'Tienda Principal' },
-                    { id: 'TINYSHOP', label: 'TinyShop' },
-                  ].map(op => (
-                    <label key={op.id} className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                      tienda === op.id ? 'border-teal-600 bg-teal-50' : 'border-gray-100 hover:border-gray-200'
-                    }`}>
-                      <input type="radio" name="tienda" value={op.id} checked={tienda === op.id as 'PRINCIPAL' | 'TINYSHOP'}
-                        onChange={() => setTienda(op.id as 'PRINCIPAL' | 'TINYSHOP')} className="accent-teal-700" />
-                      <span className="text-sm font-medium text-gray-800">{op.label}</span>
-                    </label>
-                  ))}
-                  <p className="text-xs text-gray-400">Coordinaremos el horario de retiro por email o WhatsApp.</p>
+                  <div className="border-2 border-teal-600 bg-teal-50 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-800">My Tiny Shop</span>
+                      <span className="text-xs bg-teal-100 text-teal-700 font-medium px-2 py-0.5 rounded-full">Con retiro</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Colo Colo 361, Casa 6, Pucón, La Araucanía</p>
+                    <p className="text-xs text-gray-500">Dom 12:00–18:00 · Mar a Sáb 12:00–18:00</p>
+                    <p className="text-xs text-teal-700 font-medium">Gratis · Retiro inmediato</p>
+                  </div>
                 </div>
               )}
             </div>
