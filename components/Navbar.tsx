@@ -13,7 +13,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="shrink-0">
-          <Image src="/logo.webp" alt="FYPRO" width={80} height={40} className="h-10 w-auto object-contain" priority />
+          <div className="h-[54px] w-[54px] overflow-hidden flex items-center justify-center">
+            <Image src="/logo.webp" alt="FYPRO" width={72} height={72} className="h-[72px] w-[72px]" priority />
+          </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
