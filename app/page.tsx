@@ -6,12 +6,7 @@ export default async function Home() {
   const productos = await getProductos()
   const destacados = productos.slice(0, 8)
 
-  const categorias = [
-    { nombre: 'Geles y energía', emoji: '⚡' },
-    { nombre: 'Proteína', emoji: '💪' },
-    { nombre: 'Electrolitos', emoji: '💧' },
-    { nombre: 'Suplementos', emoji: '🌿' },
-  ]
+  const marcas = [...new Set(productos.map(p => p.marca).filter(Boolean))].sort() as string[]
 
   return (
     <>
@@ -39,22 +34,23 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Categorías */}
-      <section className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-6">Explorar por categoría</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {categorias.map(cat => (
-            <Link
-              key={cat.nombre}
-              href={`/productos?categoria=${encodeURIComponent(cat.nombre)}`}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-300 transition-all p-5 flex flex-col items-center gap-2 text-center group"
-            >
-              <span className="text-3xl">{cat.emoji}</span>
-              <span className="text-sm font-semibold text-gray-700 group-hover:text-red-600 transition-colors">{cat.nombre}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* Marcas */}
+      {marcas.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 py-12">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-6">Explorar por marca</h2>
+          <div className="flex flex-wrap gap-3">
+            {marcas.map(marca => (
+              <Link
+                key={marca}
+                href={`/productos?marca=${encodeURIComponent(marca)}`}
+                className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-900 hover:text-gray-900 transition-all px-5 py-3 text-sm font-semibold text-gray-700 group"
+              >
+                {marca}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Productos destacados */}
       {destacados.length > 0 && (
