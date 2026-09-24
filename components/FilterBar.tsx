@@ -45,28 +45,6 @@ export default function FilterBar({ categorias, marcas }: Props) {
         </svg>
       </div>
 
-      {/* Categorías */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Categoría</p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setParam('categoria', null)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!params.get('categoria') ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-          >
-            Todas
-          </button>
-          {categorias.map(c => (
-            <button
-              key={c}
-              onClick={() => setParam('categoria', active('categoria', c) ? null : c)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${active('categoria', c) ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Marcas */}
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Marca</p>
