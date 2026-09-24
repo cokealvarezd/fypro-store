@@ -63,7 +63,7 @@ export default function ImageCarrusel({ fotos, nombre }: Props) {
               key={src}
               onClick={() => setActiva(i)}
               className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-colors ${
-                i === activa ? 'border-teal-600' : 'border-transparent opacity-60 hover:opacity-100'
+                i === activa ? 'border-gray-900' : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >
               <Image src={src} alt={`miniatura ${i + 1}`} fill className="object-cover" sizes="64px" />

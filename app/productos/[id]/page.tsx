@@ -55,12 +55,12 @@ export default async function ProductoPage({ params }: Props) {
         {/* Info */}
         <div className="flex flex-col gap-4">
           <div>
-            <p className="text-sm font-bold text-teal-600 uppercase tracking-wider mb-1">{p.marca}</p>
+            <p className="text-sm font-bold text-red-600 uppercase tracking-wider mb-1">{p.marca}</p>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">{p.nombre}</h1>
           </div>
 
           {p.categoria && (
-            <span className="inline-flex w-fit bg-teal-50 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <span className="inline-flex w-fit bg-red-50 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">
               {p.categoria}
             </span>
           )}

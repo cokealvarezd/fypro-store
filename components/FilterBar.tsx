@@ -38,7 +38,7 @@ export default function FilterBar({ categorias, marcas }: Props) {
             else p.delete('q')
             router.replace(`${pathname}?${p.toString()}`)
           }}
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500"
         />
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"/>
@@ -51,7 +51,7 @@ export default function FilterBar({ categorias, marcas }: Props) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setParam('categoria', null)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!params.get('categoria') ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!params.get('categoria') ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             Todas
           </button>
@@ -59,7 +59,7 @@ export default function FilterBar({ categorias, marcas }: Props) {
             <button
               key={c}
               onClick={() => setParam('categoria', active('categoria', c) ? null : c)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${active('categoria', c) ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${active('categoria', c) ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               {c}
             </button>
@@ -73,7 +73,7 @@ export default function FilterBar({ categorias, marcas }: Props) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setParam('marca', null)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!params.get('marca') ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${!params.get('marca') ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
           >
             Todas
           </button>
@@ -81,7 +81,7 @@ export default function FilterBar({ categorias, marcas }: Props) {
             <button
               key={m}
               onClick={() => setParam('marca', active('marca', m) ? null : m)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${active('marca', m) ? 'bg-teal-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${active('marca', m) ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               {m}
             </button>

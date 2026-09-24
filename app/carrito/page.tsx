@@ -23,7 +23,7 @@ export default function CarritoPage() {
         <p className="text-5xl mb-4">🛒</p>
         <h2 className="text-xl font-bold text-gray-800 mb-2">Tu carrito está vacío</h2>
         <p className="text-gray-500 text-sm mb-8">Agrega productos para empezar tu pedido.</p>
-        <Link href="/productos" className="inline-block bg-teal-700 text-white font-semibold px-6 py-3 rounded-xl hover:bg-teal-800 transition-colors">
+        <Link href="/productos" className="inline-block bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors">
           Ver productos
         </Link>
       </div>
@@ -52,7 +52,7 @@ export default function CarritoPage() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-teal-600">{item.marca}</p>
+                  <p className="text-xs font-semibold text-red-600">{item.marca}</p>
                   <p className="text-sm font-semibold text-gray-800 truncate">{item.nombre}</p>
                   <p className="text-sm text-gray-500">{formatPrecio(item.precioUnitario)} c/u</p>
                   {alMaximo && (
@@ -101,7 +101,7 @@ export default function CarritoPage() {
             </div>
             <Link
               href="/checkout"
-              className="block text-center bg-teal-700 text-white font-semibold py-3.5 rounded-xl hover:bg-teal-800 transition-colors"
+              className="block text-center bg-gray-900 text-white font-semibold py-3.5 rounded-xl hover:bg-gray-800 transition-colors"
             >
               Continuar al pago
             </Link>

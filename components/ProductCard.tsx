@@ -29,7 +29,7 @@ export default function ProductCard({ p }: { p: Producto }) {
       </div>
 
       <div className="p-4 flex flex-col gap-1 flex-1">
-        <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide">{p.marca}</p>
+        <p className="text-xs font-semibold text-red-600 uppercase tracking-wide">{p.marca}</p>
         <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 flex-1">{p.nombre}</h3>
         <p className="text-base font-bold text-gray-900 mt-2">
           {precio ? formatPrecio(precio) : 'Consultar precio'}

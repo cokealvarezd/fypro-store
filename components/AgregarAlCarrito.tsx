@@ -98,7 +98,7 @@ export default function AgregarAlCarrito({ producto, stockDisponible }: Props) {
           className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all ${
             agregado
               ? 'bg-green-600 text-white'
-              : 'bg-teal-700 text-white hover:bg-teal-800 active:scale-95'
+              : 'bg-gray-900 text-white hover:bg-gray-800 active:scale-95'
           }`}
         >
           {agregado ? '✓ Agregado al carrito' : 'Agregar al carrito'}

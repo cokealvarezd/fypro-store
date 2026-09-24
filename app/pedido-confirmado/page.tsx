@@ -43,7 +43,7 @@ export default async function PedidoConfirmadoPage({ searchParams }: Props) {
       )}
 
       <Link href="/productos"
-        className="inline-block bg-teal-700 text-white font-semibold px-6 py-3 rounded-xl hover:bg-teal-800 transition-colors">
+        className="inline-block bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors">
         Seguir comprando
       </Link>
     </div>

@@ -13,7 +13,7 @@ const REGIONES = [
   'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes',
 ]
 
-const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-gray-400'
+const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500 focus:border-transparent placeholder:text-gray-400'
 const labelCls = 'block text-sm font-medium text-gray-700 mb-1'
 
 export default function CheckoutPage() {
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
                 {(['despacho', 'retiro'] as const).map(op => (
                   <button key={op} type="button" onClick={() => setTipoEnvio(op)}
                     className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-                      tipoEnvio === op ? 'bg-teal-700 text-white' : 'text-gray-600 hover:bg-gray-50'
+                      tipoEnvio === op ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50'
                     }`}>
                     {op === 'despacho' ? 'Despacho a domicilio' : 'Retiro en tienda'}
                   </button>
@@ -161,14 +161,14 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="border-2 border-teal-600 bg-teal-50 rounded-xl p-4 space-y-2">
+                  <div className="border-2 border-gray-900 bg-gray-50 rounded-xl p-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-800">My Tiny Shop</span>
-                      <span className="text-xs bg-teal-100 text-teal-700 font-medium px-2 py-0.5 rounded-full">Con retiro</span>
+                      <span className="text-xs bg-red-100 text-red-700 font-medium px-2 py-0.5 rounded-full">Con retiro</span>
                     </div>
                     <p className="text-xs text-gray-600">Colo Colo 361, Casa 6, Pucón, La Araucanía</p>
                     <p className="text-xs text-gray-500">Dom 12:00–18:00 · Mar a Sáb 12:00–18:00</p>
-                    <p className="text-xs text-teal-700 font-medium">Gratis · Retiro inmediato</p>
+                    <p className="text-xs text-red-600 font-medium">Gratis · Retiro inmediato</p>
                   </div>
                 </div>
               )}
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
               </div>
 
               <button type="submit" disabled={enviando}
-                className="w-full py-3.5 rounded-xl font-semibold text-base bg-teal-700 text-white hover:bg-teal-800 transition-colors active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+                className="w-full py-3.5 rounded-xl font-semibold text-base bg-gray-900 text-white hover:bg-gray-800 transition-colors active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
                 {enviando ? 'Redirigiendo a Mercado Pago…' : 'Pagar con Mercado Pago'}
               </button>
 
