@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-gray-900 text-gray-400 mt-20">
       <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
         <div className="flex items-center gap-3">
-          <Image src="/logo.webp" alt="FYPRO" width={56} height={28} className="h-7 w-auto object-contain brightness-0 invert" />
+          <Image src="/logo.webp" alt="FYPRO" width={56} height={28} className="h-7 w-auto object-contain bg-white rounded px-1" />
           <span>Nutrición deportiva · Pucón, Chile</span>
         </div>
         <div className="flex gap-6">
