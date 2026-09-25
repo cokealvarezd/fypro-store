@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getProducto, getProductos } from '@/lib/firestore'
+import { getProducto, getProductos, getStockMap } from '@/lib/firestore'
 import { formatPrecio } from '@/lib/utils'
 import AgregarAlCarrito from '@/components/AgregarAlCarrito'
 import ImageCarrusel from '@/components/ImageCarrusel'
@@ -35,7 +35,8 @@ export default async function ProductoPage({ params }: Props) {
 
   const precio = p.precioVentaIVA ?? p.precioVenta
   const fotos = p.fotos?.length ? p.fotos : p.foto ? [p.foto] : []
-  const stock = p.stock ?? 0
+  const stockMap = await getStockMap()
+  const stock = stockMap[p.id] ?? 0
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">

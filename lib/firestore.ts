@@ -54,3 +54,34 @@ export async function getProducto(id: string): Promise<Producto | null> {
     return null
   }
 }
+
+// Calcula stock de PRINCIPAL leyendo movimientos (igual que inventory.html)
+export async function getStockMap(): Promise<Record<string, number>> {
+  const apiKey = process.env.FIREBASE_API_KEY
+  if (!apiKey) return {}
+  try {
+    const res = await fetch(`${BASE}/movimientos?pageSize=500&key=${apiKey}`, {
+      next: { revalidate: 60 },
+    })
+    if (!res.ok) return {}
+    const data = await res.json()
+    if (!data.documents) return {}
+
+    const stock: Record<string, number> = {}
+    for (const doc of data.documents as { fields: Record<string, FSValue> }[]) {
+      const tipo = parseValue(doc.fields.tipo) as string
+      const ubicacion = parseValue(doc.fields.ubicacion) as string
+      if (ubicacion !== 'PRINCIPAL') continue
+      if (tipo !== 'COMPRA' && tipo !== 'VENTA') continue
+      const items = parseValue(doc.fields.items) as Array<{ productoId: string; cantidad: number }> | null
+      if (!items) continue
+      for (const item of items) {
+        if (!stock[item.productoId]) stock[item.productoId] = 0
+        stock[item.productoId] += tipo === 'COMPRA' ? item.cantidad : -item.cantidad
+      }
+    }
+    return stock
+  } catch {
+    return {}
+  }
+}
