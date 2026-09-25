@@ -91,6 +91,14 @@ export async function POST(req: NextRequest) {
       unit_price: i.precioUnitario,
       currency_id: 'CLP',
     })),
+    additional_info: {
+      items: items.map(i => ({
+        id: i.productoId,
+        title: `${i.marca} ${i.nombre}`,
+        quantity: i.cantidad,
+        unit_price: i.precioUnitario,
+      })),
+    },
     payer: { name: contacto.nombre, email: contacto.email },
     back_urls: {
       success: `${baseUrl}/pedido-confirmado?id=${ordenId}`,
