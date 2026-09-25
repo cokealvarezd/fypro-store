@@ -102,40 +102,35 @@ export async function POST(req: NextRequest) {
   })
 
   // Generar movimiento VENTA al confirmarse el pago
+  // Los items vienen directamente del pago MP (additional_info.items), evitando leer Firestore
   if (estado === 'pagada') {
-    const orderRes = await fetch(`${BASE}/ordenes/${ordenId}?key=${apiKey}`)
-    if (orderRes.ok) {
-      const orderDoc = await orderRes.json()
-      const rawItems = orderDoc.fields?.items as FSValue | undefined
+    const mpItems: Array<{ id: string; quantity: number }> = payment.additional_info?.items ?? []
 
-      if (rawItems) {
-        const parsedItems = parseFS(rawItems) as Array<{ productoId: string; cantidad: number }>
+    if (mpItems.length > 0) {
+      const movId = `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      const fecha = new Date().toISOString().split('T')[0]
 
-        const movId = `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-        const fecha = new Date().toISOString().split('T')[0]
-
-        const movimiento = {
-          id: movId,
-          tipo: 'VENTA',
-          ubicacion: 'PRINCIPAL',
-          fecha,
-          comentario: `Venta online #${ordenId}`,
-          items: parsedItems.map(item => ({
-            productoId: item.productoId,
-            cantidad: item.cantidad,
-          })),
-        }
-
-        await fetch(`${BASE}/movimientos?documentId=${movId}&key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fields: Object.fromEntries(
-              Object.entries(movimiento).map(([k, v]) => [k, toFS(v)])
-            ),
-          }),
-        })
+      const movimiento = {
+        id: movId,
+        tipo: 'VENTA',
+        ubicacion: 'PRINCIPAL',
+        fecha,
+        comentario: `Venta online #${ordenId}`,
+        items: mpItems.map(item => ({
+          productoId: item.id,
+          cantidad: item.quantity,
+        })),
       }
+
+      await fetch(`${BASE}/movimientos?documentId=${movId}&key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: Object.fromEntries(
+            Object.entries(movimiento).map(([k, v]) => [k, toFS(v)])
+          ),
+        }),
+      })
     }
   }
 
