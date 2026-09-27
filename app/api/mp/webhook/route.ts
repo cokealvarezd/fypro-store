@@ -198,6 +198,7 @@ export async function POST(req: NextRequest) {
         ubicacion: 'PRINCIPAL',
         fecha,
         comentario: `Venta online #${ordenId}`,
+        montoTotal: payment.transaction_amount ?? 0,
         items: mpItems.map(item => ({
           productoId: item.id,
           cantidad: item.quantity,
