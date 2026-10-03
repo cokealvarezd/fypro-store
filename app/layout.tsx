@@ -10,6 +10,7 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
 export const metadata: Metadata = {
   title: { default: 'FYPRO — Nutrición Deportiva', template: '%s · FYPRO' },
   description: 'Nutrición deportiva de alto rendimiento. Geles, proteínas, electrolitos y suplementos para atletas.',
+  icons: { icon: '/logo.webp', apple: '/logo.webp' },
   openGraph: {
     siteName: 'FYPRO',
     locale: 'es_CL',
