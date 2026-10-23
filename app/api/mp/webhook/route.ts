@@ -341,7 +341,10 @@ export async function POST(req: NextRequest) {
         await Promise.all([
           resend.emails.send({
             from: 'FYPRO <pedidos@fypro.cl>',
-            to: ['alvarezd.jorge@gmail.com'],
+            to: (process.env.ADMIN_EMAILS ?? 'alvarezd.jorge@gmail.com')
+              .split(',')
+              .map(e => e.trim())
+              .filter(Boolean),
             subject: `Nueva venta #${ordenId} — ${clp(total)}`,
             html: emailAdmin(emailOpts),
           }),
