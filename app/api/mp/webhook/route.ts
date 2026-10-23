@@ -340,14 +340,14 @@ export async function POST(req: NextRequest) {
 
         await Promise.all([
           resend.emails.send({
-            from: 'FYPRO <onboarding@resend.dev>',
+            from: 'FYPRO <pedidos@fypro.cl>',
             to: ['alvarezd.jorge@gmail.com'],
             subject: `Nueva venta #${ordenId} — ${clp(total)}`,
             html: emailAdmin(emailOpts),
           }),
           clienteEmail
             ? resend.emails.send({
-                from: 'FYPRO <onboarding@resend.dev>',
+                from: 'FYPRO <pedidos@fypro.cl>',
                 to: [clienteEmail],
                 subject: `Confirmación de tu pedido FYPRO #${ordenId}`,
                 html: emailCliente(emailOpts),
