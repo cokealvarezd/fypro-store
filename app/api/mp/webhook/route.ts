@@ -88,6 +88,17 @@ type EmailOpts = {
   clienteEmail: string
   clienteTelefono: string
   despachoTexto: string
+  subtotal: number
+  descuento: number
+  cuponTexto: string
+}
+
+function bloqueTotal(opts: EmailOpts, etiqueta: string) {
+  const lineaDescuento = opts.descuento > 0
+    ? `<p style="text-align:right;margin:0 0 4px;color:#555">Subtotal: ${clp(opts.subtotal)}</p>
+    <p style="text-align:right;margin:0 0 8px;color:#15803d">Descuento ${opts.cuponTexto}: −${clp(opts.descuento)}</p>`
+    : ''
+  return `${lineaDescuento}<p style="text-align:right;font-size:20px;font-weight:700;margin:0 0 20px">${etiqueta}: ${clp(opts.total)}</p>`
 }
 
 function filasProductos(items: EmailItem[]) {
@@ -121,7 +132,7 @@ function emailAdmin(opts: EmailOpts): string {
       </thead>
       <tbody>${filasProductos(opts.items)}</tbody>
     </table>
-    <p style="text-align:right;font-size:20px;font-weight:700;margin:0 0 20px">Total: ${clp(opts.total)}</p>
+    ${bloqueTotal(opts, 'Total')}
 
     <hr style="border:none;border-top:1px solid #eee;margin:0 0 16px">
 
@@ -186,7 +197,7 @@ function emailCliente(opts: EmailOpts): string {
       </thead>
       <tbody>${filasProductos(opts.items)}</tbody>
     </table>
-    <p style="text-align:right;font-size:20px;font-weight:700;margin:0 0 20px">Total pagado: ${clp(opts.total)}</p>
+    ${bloqueTotal(opts, 'Total pagado')}
 
     <hr style="border:none;border-top:1px solid #eee;margin:0 0 16px">
 
@@ -267,6 +278,10 @@ export async function POST(req: NextRequest) {
   type OrdenData = {
     contacto?: { nombre?: string; email?: string; telefono?: string }
     despacho?: { tipo?: string; tienda?: string; direccion?: string; comuna?: string; region?: string }
+    items?: { productoId?: string; nombre?: string; marca?: string; cantidad?: number; precioUnitario?: number }[]
+    subtotal?: number
+    descuento?: number
+    cupon?: { codigo?: string; porcentaje?: number } | null
   }
   let orden: OrdenData = {}
   if (patchRes.ok) {
@@ -279,8 +294,19 @@ export async function POST(req: NextRequest) {
   }
 
   if (estado === 'pagada') {
-    const mpItems: Array<{ id: string; title: string; quantity: number; unit_price: number }> =
+    const itemsMP: Array<{ id: string; title: string; quantity: number; unit_price: number }> =
       payment.additional_info?.items ?? []
+
+    // La orden guarda los precios reales (sin descuento); MP es solo respaldo
+    const itemsOrden = (orden.items ?? []).filter(i => i.productoId && i.cantidad)
+    const mpItems = itemsOrden.length > 0
+      ? itemsOrden.map(i => ({
+          id: i.productoId as string,
+          title: `${i.marca ?? ''} ${i.nombre ?? ''}`.trim(),
+          quantity: i.cantidad as number,
+          unit_price: i.precioUnitario ?? 0,
+        }))
+      : itemsMP
 
     if (mpItems.length > 0) {
       const movId = `mov_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -291,7 +317,9 @@ export async function POST(req: NextRequest) {
         tipo: 'VENTA',
         ubicacion: 'PRINCIPAL',
         fecha,
-        comentario: `Venta online #${ordenId}`,
+        comentario: orden.cupon?.codigo
+          ? `Venta online #${ordenId} (cupón ${orden.cupon.codigo} −${orden.cupon.porcentaje}%)`
+          : `Venta online #${ordenId}`,
         montoTotal: payment.transaction_amount ?? 0,
         items: mpItems.map(item => ({ productoId: item.id, cantidad: item.quantity })),
       }
@@ -336,6 +364,9 @@ export async function POST(req: NextRequest) {
           clienteEmail,
           clienteTelefono,
           despachoTexto,
+          subtotal: orden.subtotal ?? total,
+          descuento: orden.descuento ?? 0,
+          cuponTexto: orden.cupon?.codigo ? `(${orden.cupon.codigo} −${orden.cupon.porcentaje}%)` : '',
         }
 
         await Promise.all([

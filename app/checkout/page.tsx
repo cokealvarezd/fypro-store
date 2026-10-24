@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { formatPrecio } from '@/lib/utils'
+import { aplicarDescuento } from '@/lib/cupones'
 
 const REGIONES = [
   'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo',
@@ -32,12 +33,41 @@ export default function CheckoutPage() {
   const [error, setError] = useState('')
   const pedidoEnviado = useRef(false)
 
+  const [cuponInput, setCuponInput] = useState('')
+  const [cupon, setCupon] = useState<{ codigo: string; porcentaje: number } | null>(null)
+  const [cuponError, setCuponError] = useState('')
+  const [validandoCupon, setValidandoCupon] = useState(false)
+
+  const aplicarCupon = async () => {
+    if (!cuponInput.trim()) return
+    setCuponError('')
+    setValidandoCupon(true)
+    try {
+      const res = await fetch('/api/cupon/validar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo: cuponInput }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Código de descuento no válido')
+      setCupon(data)
+      setCuponInput('')
+    } catch (err) {
+      setCupon(null)
+      setCuponError(err instanceof Error ? err.message : 'No se pudo validar el código')
+    } finally {
+      setValidandoCupon(false)
+    }
+  }
+
   useEffect(() => {
     if (listo && items.length === 0 && !pedidoEnviado.current) router.replace('/productos')
   }, [items, router, listo])
 
   if (!listo) return null
   if (items.length === 0) return null
+
+  const { total: totalConDescuento, descuento } = aplicarDescuento(items, cupon?.porcentaje ?? 0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,19 +84,12 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: items.map(i => ({
-            productoId: i.productoId,
-            nombre: i.nombre,
-            marca: i.marca,
-            cantidad: i.cantidad,
-            precioUnitario: i.precioUnitario,
-          })),
+          items: items.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
+          cupon: cupon?.codigo ?? null,
           contacto: { nombre: nombre.trim(), email: email.trim(), telefono: telefono.trim() },
           despacho: tipoEnvio === 'retiro'
             ? { tipo: 'retiro', tienda, direccion: '', comuna: '', region: '' }
             : { tipo: 'despacho', direccion: direccion.trim(), comuna: comuna.trim(), region, tienda: '' },
-          subtotal: total,
-          total,
         }),
       })
 
@@ -203,11 +226,43 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              <div className="border-t border-gray-100 pt-4 space-y-2">
+                {cupon ? (
+                  <div className="flex items-center justify-between text-sm bg-green-50 border border-green-100 text-green-700 rounded-xl px-3 py-2">
+                    <span>Código <strong>{cupon.codigo}</strong> (−{cupon.porcentaje}%)</span>
+                    <button type="button" onClick={() => setCupon(null)} className="text-xs underline hover:text-green-900">Quitar</button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <input
+                        value={cuponInput}
+                        onChange={e => { setCuponInput(e.target.value); setCuponError('') }}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); aplicarCupon() } }}
+                        placeholder="Código de descuento"
+                        className="flex-1 min-w-0 border border-gray-200 rounded-xl px-3 py-2 text-sm uppercase placeholder:normal-case placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/30 focus:border-red-500"
+                      />
+                      <button type="button" onClick={aplicarCupon} disabled={validandoCupon || !cuponInput.trim()}
+                        className="px-4 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50">
+                        {validandoCupon ? '…' : 'Aplicar'}
+                      </button>
+                    </div>
+                    {cuponError && <p className="text-xs text-red-500">{cuponError}</p>}
+                  </>
+                )}
+              </div>
+
               <div className="border-t border-gray-100 pt-4 space-y-2 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>{formatPrecio(total)}</span>
                 </div>
+                {descuento > 0 && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Descuento</span>
+                    <span>−{formatPrecio(descuento)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Despacho</span>
                   <span className="text-gray-400">A coordinar</span>
@@ -216,7 +271,7 @@ export default function CheckoutPage() {
 
               <div className="border-t border-gray-100 pt-4 flex justify-between font-bold text-gray-900">
                 <span>Total</span>
-                <span>{formatPrecio(total)}</span>
+                <span>{formatPrecio(totalConDescuento)}</span>
               </div>
 
               <button type="submit" disabled={enviando}

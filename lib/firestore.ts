@@ -55,6 +55,19 @@ export async function getProducto(id: string): Promise<Producto | null> {
   }
 }
 
+export async function getProductoFresco(id: string): Promise<Producto | null> {
+  if (!/^[A-Za-z0-9_-]{1,60}$/.test(id)) return null
+  try {
+    const res = await fetch(`${BASE}/productos/${id}`, { cache: 'no-store' })
+    if (!res.ok) return null
+    const doc = await res.json()
+    if (!doc.fields) return null
+    return parseFields(doc.fields) as unknown as Producto
+  } catch {
+    return null
+  }
+}
+
 // Calcula stock de PRINCIPAL leyendo movimientos (igual que inventory.html)
 export async function getStockMap(): Promise<Record<string, number>> {
   const apiKey = process.env.FIREBASE_API_KEY

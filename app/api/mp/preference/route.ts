@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getProductoFresco } from '@/lib/firestore'
+import { getCupon, aplicarDescuento, type Cupon } from '@/lib/cupones'
 
 const PROJECT = 'fypro-inventory'
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`
@@ -45,11 +47,10 @@ export async function POST(req: NextRequest) {
   }
 
   let body: {
-    items: { productoId: string; nombre: string; marca: string; cantidad: number; precioUnitario: number }[]
+    items: { productoId: string; cantidad: number }[]
     contacto: { nombre: string; email: string; telefono: string }
     despacho: { tipo: string; tienda: string; direccion: string; comuna: string; region: string }
-    subtotal: number
-    total: number
+    cupon?: string | null
   }
 
   try {
@@ -58,15 +59,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
   }
 
-  const { items, contacto, despacho, subtotal, total } = body
-  if (!items?.length || !contacto?.nombre || !contacto?.email || !contacto?.telefono) {
+  const { contacto, despacho } = body
+  if (!body.items?.length || !contacto?.nombre || !contacto?.email || !contacto?.telefono) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
+
+  // Los precios siempre se leen de Firestore; nunca se confía en los que envía el navegador
+  const items: { productoId: string; nombre: string; marca: string; cantidad: number; precioUnitario: number }[] = []
+  for (const it of body.items) {
+    if (!Number.isInteger(it.cantidad) || it.cantidad < 1 || it.cantidad > 100) {
+      return NextResponse.json({ error: 'Cantidad inválida' }, { status: 400 })
+    }
+    const prod = await getProductoFresco(String(it.productoId))
+    const precio = prod?.precioVentaIVA ?? prod?.precioVenta ?? 0
+    if (!prod || !prod.activo || !prod.publicado || precio <= 0) {
+      return NextResponse.json({ error: 'Un producto del carrito ya no está disponible' }, { status: 400 })
+    }
+    items.push({ productoId: prod.id, nombre: prod.nombre, marca: prod.marca, cantidad: it.cantidad, precioUnitario: precio })
+  }
+
+  let cupon: Cupon | null = null
+  if (body.cupon) {
+    cupon = await getCupon(body.cupon)
+    if (!cupon) return NextResponse.json({ error: 'Código de descuento no válido' }, { status: 400 })
+  }
+
+  const { unitPrices, subtotal, total, descuento } = aplicarDescuento(items, cupon?.porcentaje ?? 0)
 
   const ordenId = generarId()
 
   // 1. Guardar orden en Firestore (estado inicial: pendiente)
-  const orden = { id: ordenId, items, contacto, despacho, subtotal, total, estado: 'pendiente', creadoEn: Date.now() }
+  const orden = { id: ordenId, items, contacto, despacho, subtotal, descuento, cupon, total, estado: 'pendiente', creadoEn: Date.now() }
   const fields: Record<string, FSValue> = {}
   for (const [k, v] of Object.entries(orden)) fields[k] = toFS(v)
 
@@ -84,11 +107,11 @@ export async function POST(req: NextRequest) {
   const isPublicUrl = baseUrl.startsWith('https://')
 
   const preference = {
-    items: items.map(i => ({
+    items: items.map((i, idx) => ({
       id: i.productoId,
       title: `${i.marca} ${i.nombre}`,
       quantity: i.cantidad,
-      unit_price: i.precioUnitario,
+      unit_price: unitPrices[idx],
       currency_id: 'CLP',
     })),
     additional_info: {

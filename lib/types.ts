@@ -29,6 +29,8 @@ export interface Orden {
   contacto: { nombre: string; email: string; telefono: string }
   despacho: { tipo: 'despacho' | 'retiro'; direccion: string; comuna: string; region: string; tienda?: string }
   subtotal: number
+  descuento?: number
+  cupon?: { codigo: string; porcentaje: number } | null
   total: number
   estado: 'pendiente' | 'pagada' | 'rechazada'
   mpPaymentId?: string
